@@ -22,8 +22,6 @@ To enable seamless remote control, we will design a custom add-on for the desk's
 ## Aims
 We aim to develop a smart mobile application which enables users to remotely adjust their desk’s height via an app, provide customizable timers and notification to remind users when to sit or stand, offer activity tracking to monitor time spent sitting and standing, and allow users to set personalized movement goals based on their work style and health needs.
 
-We also aim to enhance the desk’s functionality with a Custom Add-On that enables the mobile app to communicate with the preexisting controller enabling remote communication. We aim to ensure seamless wireless communication between the desk and the mobile app. We aim to maintain compatibility with existing sit-stand desks, making our solution easy to implement.
-
 We also aim to design the app with a clean, minimalist layout to reduce cognitive load and ensure that users can quickly access the features they need. Key features like adjusting desk height, setting timers, and tracking activity will be easily accessible through simple navigation flows. The use of icons, clear labels, and color-coded notifications will make it straightforward for users to understand and interact with the app.
 
 ## User Stories
