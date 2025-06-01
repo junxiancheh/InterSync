@@ -1,3 +1,4 @@
+![Background](https://github.com/junxiancheh/InterSync/blob/4cfab1aeb8adf51c4c4eb9082ca57007ae042bac/assets/Intersync%20logo.png)
 # InterSync
 Team Name: InterSync
 Team Member: Cheh Jun Xian, Palaniappan Kannappan
