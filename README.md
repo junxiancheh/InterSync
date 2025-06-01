@@ -95,10 +95,10 @@ Servomotor
 Bluetooth/WiFi
 
 ## Proposed Technical Proof of Concept
-**Objective**
+**Objective**:
 The objective of this Proof of Concept is to demonstrate the feasibility of controlling a desk’s height remotely via a mobile app communicating wirelessly with an Arduino microcontroller that physically presses the desk buttons.
 
 
-**Design and Architecture**
+**Design and Architecture**:
 The mobile app connects to the Arduino over BLE. When the user presses the "Raise" or "Lower" button, the app sends a command wirelessly. The Arduino activates servo motors to press the corresponding physical desk buttons, adjusting the desk height.
 
