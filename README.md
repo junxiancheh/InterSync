@@ -74,7 +74,7 @@ Hardware integration improvements which includes optimized controller response &
 
 Refine frontend UI/UX design to increase engagement.
 
-## **Milestone 4 (27 August)** - Final Refinement (Polish the system for reliability, usability, and performance.)
+## **Milestone 4 (27 August)** - Final Refinement (Polish the system for reliability, usability, and performance)
 
 Bug fixes and UI/UX refinements to ensure smooth user experience
 
