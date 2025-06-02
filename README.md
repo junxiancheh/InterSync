@@ -9,6 +9,8 @@ Proposed Level of Achievement: Apollo 11
 
 **Project Video**: [Link](https://drive.google.com/file/d/1tF2hja98PHN4CFZccdPgOI25qJePA_pV/view?usp=sharing)
 
+**Project Log**: [Link](https://docs.google.com/spreadsheets/d/1ggtJlYpsDXGEG9uSvqFf4-HpyCmRB_a1ReXKecVyrRw/edit?usp=sharing)
+
 
 ## Motivation 
 As the founders of Interdesk, we started out with a mission to promote ergonomics in homes and office spaces. In today's work environment, prolonged sitting has become a major health concern, contributing to issues like poor posture, back pain, and decreased productivity. While our adjustable desks offer a solution, we realized that many users struggle to maintain a consistent routine of switching between sitting and standing and thus they do not fully leverage the health benefits these desks can offer. Many people set up their desks with the intention to be more active, but without the right reminders, it's easy to slip back into old habits. This leads to missed opportunities for better posture, improved circulation, and overall health.
