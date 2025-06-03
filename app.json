@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SmartDeskApp",
-    "slug": "SmartDeskApp",
+    "name": "InterSync",
+    "slug": "InterSync",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
