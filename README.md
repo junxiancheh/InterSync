@@ -12,6 +12,17 @@ Proposed Level of Achievement: Apollo 11
 
 **Project Log**: [Link](https://docs.google.com/spreadsheets/d/1ggtJlYpsDXGEG9uSvqFf4-HpyCmRB_a1ReXKecVyrRw/edit?usp=sharing)
 
+## HOW TO USE
+**EXPO GO**
+
+Android Users can scan the following QR Code to use the application after downloading Expo application from Google Play Store.
+
+![Background](https://github.com/junxiancheh/InterSync/blob/a015faf608368bf916d36b662bf00579475d4003/assets/expogoQR.png)
+
+**Features**
+1. Buttons to adjust height
+![Background](https://github.com/junxiancheh/InterSync/blob/3ae18eae6837a5d9fac9ce8881ee170c81057a51/assets/Feature1.png)
+
 
 ## Motivation 
 As the founders of Interdesk, we started out with a mission to promote ergonomics in homes and office spaces. In today's work environment, prolonged sitting has become a major health concern, contributing to issues like poor posture, back pain, and decreased productivity. While our adjustable desks offer a solution, we realized that many users struggle to maintain a consistent routine of switching between sitting and standing and thus they do not fully leverage the health benefits these desks can offer. Many people set up their desks with the intention to be more active, but without the right reminders, it's easy to slip back into old habits. This leads to missed opportunities for better posture, improved circulation, and overall health.
