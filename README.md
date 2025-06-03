@@ -22,6 +22,8 @@ Android Users can scan the following QR Code to use the application after downlo
 **Features**
 1. Buttons to adjust height
    
+There is a maximum height of 120cm and minimum height of 60cm.
+
 <h3 align="center">Desk Control Interface</h3>
 <p align="center">
   <img src="https://github.com/junxiancheh/InterSync/blob/3ae18eae6837a5d9fac9ce8881ee170c81057a51/assets/Feature1.png?raw=true" alt="Desk Control Screenshot" width="400" height="800" />
