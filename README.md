@@ -20,14 +20,14 @@ Android Users can scan the following QR Code to use the application after downlo
 ![Background](https://github.com/junxiancheh/InterSync/blob/a015faf608368bf916d36b662bf00579475d4003/assets/expogoQR.png)
 
 **Features**
-1. Buttons to adjust height
-   
-There is a maximum height of 120cm and minimum height of 60cm.
 
-<h3 align="center">Desk Control Interface</h3>
+<h3 align="center">Feature 1: Desk Control Interface</h3>
+
 <p align="center">
-  <img src="https://github.com/junxiancheh/InterSync/blob/3ae18eae6837a5d9fac9ce8881ee170c81057a51/assets/Feature1.png?raw=true" alt="Desk Control Screenshot" width="400" height="800" />
+  <img src="https://github.com/junxiancheh/InterSync/blob/3eb8628fdbe03cec372e8986ccecfefc47a9f384/assets/Feature1_1.png" width="400" height="800" />
 </p>
+
+Control the height of the desk using the Up and Down buttons. The default desk is set to our Classic desk, which has a minimum height of 70cm and maximum height of 120cm, and maximum speed of 20mm/s.
 
 
 ## Motivation 
