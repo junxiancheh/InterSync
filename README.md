@@ -17,7 +17,7 @@ Proposed Level of Achievement: Apollo 11
 
 Android Users can scan the following QR Code to use the application after downloading Expo Go application from Google Play Store. For iOS, use the camera app. Please contact @junxiancheh or @Kpboss188 on Telegram if the QR is invalid!
 
-![Background](https://github.com/junxiancheh/InterSync/blob/a6ca5293d8c5c4c76a2e48c566a3bbaf938030ca/assets/expogoQR2.png)
+![Background](https://github.com/junxiancheh/InterSync/blob/0275721b46f0e97cf42f7669786fb69d68b978d2/assets/expogo3.png)
 
 **Features**
 
