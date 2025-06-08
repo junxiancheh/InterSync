@@ -3,9 +3,10 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert, Image } from 'react-na
 import { TextInput } from 'react-native';
 
 export default function App() {
-  const MIN_HEIGHT = 60; // set min height. need to consider different tables
+  const MIN_HEIGHT = 70; // set min height. need to consider different tables
   const MAX_HEIGHT = 120; // set max height. need to consider different tables
-  const [height, setHeight] = useState(60);
+  const MAX_SPEED = 200; // set max speed. need to consider different tables
+  const [height, setHeight] = useState(70); // initial height
   const intervalRef = useRef(null);
 
   const increaseHeight = () => {
@@ -26,7 +27,7 @@ export default function App() {
 
   const startHold = (action) => {
     action();
-    intervalRef.current = setInterval(action, 100);
+    intervalRef.current = setInterval(action, MAX_SPEED);
   };
 
   const stopHold = () => {
@@ -61,7 +62,7 @@ export default function App() {
         </TouchableOpacity>
       </View>
       {/* Memory buttons hidden for future development */}
-      {/* 
+      {/*
       <View style={styles.memoryContainer}>
         {[60, 80, 100, 120].map((value, index) => (
           <TouchableOpacity
@@ -74,11 +75,18 @@ export default function App() {
           </TouchableOpacity>
         ))}
       </View>
-      */
-      <Text style={{ color: '#888', fontSize: 20, marginTop: 20 }}>
-        Long press to hold the button
-      </Text>
-    }
+      */}
+      <View>
+        <Text style={{ color: '#888', fontSize: 20, marginTop: 20 }}>
+          Long press to adjust height
+        </Text>
+        <Text style={{ color: '#888', fontSize: 20, marginTop: 10 }}>
+          Desk Type: Classic
+        </Text>
+        <Text style={{ color: '#888', fontSize: 20, marginTop: 10 }}>
+          Max speed: {MAX_SPEED/10} m/s 
+        </Text>
+      </View>
     </View>
   );
 }
@@ -95,7 +103,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     resizeMode: 'contain',
-    marginBottom: 10,
+    marginBottom: 60,
   },
   title: {
     fontSize: 28,
@@ -108,7 +116,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    gap: 30,
+    gap: -10,
     marginBottom: 20,
   },
   button: {
@@ -118,7 +126,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   buttonText: {
-    fontSize: 50,
+    fontSize: 60,
     color: '#fff',
     fontWeight: 'bold',
   },
