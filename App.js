@@ -1,9 +1,8 @@
-import {useState} from "react";  
-import { StyleSheet, Text, View, TouchableOpacity, Alert, Image } from 'react-native';
-import StandNotification from './features/StandNotification';
-import DeskController from './features/DeskController';
-import { createBottomTabNavigator, NavigationContainer } from '@react-navigation/bottom-tabs';
-import { Ionicons }  from '@expo/vector-icons';
+import { useState } from "react";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+
+import { Ionicons } from '@expo/vector-icons';
 
 import Homepage from './screens/Homepage';
 import Activitypage from './screens/Activitypage';
@@ -14,9 +13,8 @@ const Tab = createBottomTabNavigator(); // Create a bottom tab navigator
 
 export default function App() {
 
-const [deskType, setDeskType] = useState('Classic'); // Default desk type is Interdesk Classic
-
-    return (
+    const [deskType, setDeskType] = useState('Classic'); // Default desk type is Interdesk Classic
+    return (/*
             <NavigationContainer>
                 <Tab.Navigator
                     screenOptions = {({ route }) => ({ 
@@ -34,12 +32,29 @@ const [deskType, setDeskType] = useState('Classic'); // Default desk type is Int
                         tabBarActiveBackgroundColor: '#e0e0e0',
                         tabBarInactiveBackgroundColor: '#f0f0f0',
                     })}
-                    > 
-                    <Tab.Screen name = "Home" component = {Homepage} />
-                    <Tab.Screen name = "Activity" component = {Activitypage} />
-                    <Tab.Screen name = "Settings" component = {Settings} />
+                >
+                    <Tab.Screen name = "Home" children = {() => <Homepage deskType = {deskType} setDeskType = {setDeskType} />} options = {{ headerShown: false }} />
+                    <Tab.Screen name = "Activity" children={() => <Activitypage deskType = {deskType} />} options = {{ headerShown: false }} />
+                    <Tab.Screen name = "Settings" children={() => <Settings deskType = {deskType} setDeskType = {setDeskType} />} options = {{ headerShown: false }} />
                 </Tab.Navigator>
-            </NavigationContainer> /* Bottom navigation tab */
+            </NavigationContainer>  
+    ); */
+        <NavigationContainer>
+            <Tab.Navigator>
+                <Tab.Screen
+                    name = "Home"
+                    children={() => <Homepage deskType={ deskType } setDeskType={ setDeskType } />}
+                />
+                <Tab.Screen
+                    name = "Activity"
+                    children={() => <Activitypage deskType = { deskType } />}
+                />
+                <Tab.Screen
+                    name = "Settings"
+                    children={() => <Settings deskType = { deskType } setDeskType = { setDeskType } />}
+                />
+            </Tab.Navigator>
+        </NavigationContainer>
     );
 }
 // This is the main entry point of the InterSync app, which allows users to toggle between the Stand Notification and Desk Controller features.

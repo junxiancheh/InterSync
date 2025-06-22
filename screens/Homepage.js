@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { DeskController } from '../features/DeskController';
+import DeskController from '../features/DeskController';
 import DeskTypeSelector from "../features/DeskTypeSelector";
 
-export default function HomePage({ deskType, setDeskType }) {
+export default function Homepage({ deskType, setDeskType }) {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>InterSync</Text>
