@@ -14,7 +14,7 @@ const Tab = createBottomTabNavigator(); // Create a bottom tab navigator
 export default function App() {
 
     const [deskType, setDeskType] = useState('Classic'); // Default desk type is Interdesk Classic
-    return (/*
+    return (
             <NavigationContainer>
                 <Tab.Navigator
                     screenOptions = {({ route }) => ({ 
@@ -23,14 +23,15 @@ export default function App() {
                             if (route.name === 'Home') {
                                 iconName = focused ? 'home' : 'home-outline';
                             } else if (route.name === 'Activity') {
-                                iconName = focused ? 'areachart' : 'areachart-outline';
+                                iconName = focused ? 'bar-chart' : 'bar-chart-outline';
                             } else if (route.name === 'Settings') {
                                 iconName = focused ? 'settings' : 'settings-outline';
                             }
-                            return <Ionicons name = {iconName} size = {32} color = "black" />;
+                            return <Ionicons name = {iconName} size = {20} color = "black" />;
                         }, 
-                        tabBarActiveBackgroundColor: '#e0e0e0',
-                        tabBarInactiveBackgroundColor: '#f0f0f0',
+                        tabBarActiveTintColor: 'black',
+                        tabBarInactiveTintColor: 'gray',
+                        
                     })}
                 >
                     <Tab.Screen name = "Home" children = {() => <Homepage deskType = {deskType} setDeskType = {setDeskType} />} options = {{ headerShown: false }} />
@@ -38,7 +39,8 @@ export default function App() {
                     <Tab.Screen name = "Settings" children={() => <Settings deskType = {deskType} setDeskType = {setDeskType} />} options = {{ headerShown: false }} />
                 </Tab.Navigator>
             </NavigationContainer>  
-    ); */
+    ); 
+    /*
         <NavigationContainer>
             <Tab.Navigator>
                 <Tab.Screen
@@ -56,5 +58,6 @@ export default function App() {
             </Tab.Navigator>
         </NavigationContainer>
     );
+    */
 }
 // This is the main entry point of the InterSync app, which allows users to toggle between the Stand Notification and Desk Controller features.
