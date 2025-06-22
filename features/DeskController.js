@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, TextInput} from 'react-native'
 import React, { useState, useRef } from 'react'
+import { deskSettings } from './DeskSettings';  
 
 export default function DeskController() {
     const [deskType, setDeskType] = useState('Classic'); // Interdesk Classic

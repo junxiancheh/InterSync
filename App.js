@@ -1,60 +1,45 @@
-import React, {useState} from "react";  
+import {useState} from "react";  
 import { StyleSheet, Text, View, TouchableOpacity, Alert, Image } from 'react-native';
 import StandNotification from './features/StandNotification';
 import DeskController from './features/DeskController';
+import { createBottomTabNavigator, NavigationContainer } from '@react-navigation/bottom-tabs';
+import { Ionicons }  from '@expo/vector-icons';
+
+import Homepage from './screens/Homepage';
+import Activitypage from './screens/Activitypage';
+import Settings from "./screens/Settings";
+
+const Tab = createBottomTabNavigator(); // Create a bottom tab navigator
+
 
 export default function App() {
-    const [showNotification, setShowNotification] = useState(false);
-    const [showController, setShowController] = useState(false);
+
+const [deskType, setDeskType] = useState('Classic'); // Default desk type is Interdesk Classic
 
     return (
-        <View style={styles.container}>
-          <Image source={require('./assets/logo.png')} style={styles.logo} />
-            <TouchableOpacity 
-                style={styles.button} 
-                onPress={() => setShowNotification(!showNotification)}
-            >
-                <Text style={styles.buttonText}>Stand Notification</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-                style={styles.button} 
-                onPress={() => setShowController(!showController)}
-            >
-                <Text style={styles.buttonText}>Desk Controller</Text>
-            </TouchableOpacity>
-            {showNotification && <StandNotification />}
-            {showController && <DeskController />}
-        </View>
+            <NavigationContainer>
+                <Tab.Navigator
+                    screenOptions = {({ route }) => ({ 
+                        tabBarIcon: ({ focused, color, size }) => {
+                            let iconName; 
+                            if (route.name === 'Home') {
+                                iconName = focused ? 'home' : 'home-outline';
+                            } else if (route.name === 'Activity') {
+                                iconName = focused ? 'areachart' : 'areachart-outline';
+                            } else if (route.name === 'Settings') {
+                                iconName = focused ? 'settings' : 'settings-outline';
+                            }
+                            return <Ionicons name = {iconName} size = {32} color = "black" />;
+                        }, 
+                        tabBarActiveBackgroundColor: '#e0e0e0',
+                        tabBarInactiveBackgroundColor: '#f0f0f0',
+                    })}
+                    > 
+                    <Tab.Screen name = "Home" component = {Homepage} />
+                    <Tab.Screen name = "Activity" component = {Activitypage} />
+                    <Tab.Screen name = "Settings" component = {Settings} />
+                </Tab.Navigator>
+            </NavigationContainer> /* Bottom navigation tab */
     );
 }
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f0f0f0',
-    },
-    logo: {
-        width: 100,
-        height: 100,
-        marginBottom: 20, 
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        marginTop: 60,
-    },
-    button: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 5,
-        marginVertical: 10,
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-    },
-});
 // This is the main entry point of the InterSync app, which allows users to toggle between the Stand Notification and Desk Controller features.
-
