@@ -28,8 +28,6 @@ export default function DeskTypeSelector({ deskType, setDeskType }) {
     );
 }
 
-
-
     const styles = StyleSheet.create({
         container: {
             flexDirection: 'row',
@@ -40,17 +38,16 @@ export default function DeskTypeSelector({ deskType, setDeskType }) {
             fontSize: 16,
             fontWeight: 'bold',
             marginRight: 10,
+            paddingTop: 6,
         },
         options: {
             flexDirection: 'row',
             justifyContent: 'space-between',
-            width: 200,
+            width: 100,
         },
         button: {
-            padding: 10,
             backgroundColor: '#007BFF',
             borderRadius: 5,
-            marginRight: 10,
             borderWidth: 1,
             borderColor: '#0056b3',
             width: 80,
@@ -59,7 +56,6 @@ export default function DeskTypeSelector({ deskType, setDeskType }) {
             alignItems: 'center',
         },
         selectedButton: {
-            padding: 10,
             backgroundColor: '#0056b3',
             borderRadius: 5,
             marginRight: 10,

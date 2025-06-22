@@ -24,11 +24,12 @@ const styles = StyleSheet.create({
         fontSize: 32,
         fontWeight: 'bold',
         marginBottom: 20,
-        color: '#',
+        paddingTop: 20,
     },
     subtitle: {
-        fontSize: 18,
-        color: '#666',
+        fontSize: 16,
+        color: '#000',
         marginBottom: 30,
+        paddingHorizontal: 20,
     },
 });
