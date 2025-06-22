@@ -9,6 +9,36 @@ export default function DeskController({ deskType }) {
   const [height, setHeight] = useState(minHeight);
   const intervalRef = useRef(null);
 
+  const stopCurrentInterval = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null; // Clear the reference to the interval
+    }
+  };
+
+  const moveToMemoryHeight = (targetHeight) => {
+    stopCurrentInterval(); // Stop any ongoing movement when pressed
+
+    if (height === targetHeight || intervalRef.current) {
+      return; // Prevent multiple intervals or if already at target height
+    }
+
+    const step = height < targetHeight ? 1 : -1; // if  height is less than targetHeight, increase height, otherwise decrease it
+    const intervalTime = 1000 / (maxSpeed / 10); // Calculate interval time based on maxSpeed
+    
+    intervalRef.current = setInterval(() => {
+      setHeight((prev) => {
+        const next = prev + step;
+        if ((step > 0 && next >= targetHeight) || (step < 0 && next <= targetHeight)) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          return targetHeight; // Stop at target height
+        }
+        return next; // Continue moving towards target height
+      });
+    }, intervalTime);
+  }; // Move to a memory height 
+
   /*
   const deskSettings = {
       Classic: { // Interdesk Classic's settings
@@ -26,33 +56,28 @@ export default function DeskController({ deskType }) {
   } desk settings inside DeskSettings.js file
       */
 
-  const increaseHeight = () =>
-    setHeight(prev => {
-      if (prev < maxHeight)
-        return prev + 1;
-      else
-        Alert.alert('Warning', 'Maximum height ' + maxHeight + 'cm has been reached');
-      return prev;
-    }); // Increase height by 1 cm
+  const startHold = (direction) => {
+    stopCurrentInterval(); // Stop any ongoing movement when button is pressed
+    
+    const step = direction === 'up' ? 1 : -1; // Determine interval based on direction
+    const intervalTime = 1000 / (maxSpeed / 10); // Calculate interval time based on maxSpeed
 
-  const decreaseHeight = () =>
-    setHeight(prev => {
-      if (prev > minHeight)
-        return prev - 1;
-      else
-        Alert.alert('Warning', 'Minimum height ' + minHeight + 'cm has been reached');
-      return prev;
-    }) // Decrease height by 1 cm
-
-  const startHold = action => {
-    action();
-    intervalRef.current = setInterval(action, maxSpeed);
-  }; // Start holding the button to increase height
+    intervalRef.current = setInterval(() => {
+      setHeight(prev => {
+        const next = prev + step;
+        if ((step > 0 && next > maxHeight) || (step < 0 && next < minHeight)) {
+          stopCurrentInterval(); // Stop the interval if limits are reached
+          Alert.alert('Warning', `Height must be between ${minHeight}cm and ${maxHeight}cm`);
+          return prev; // Stop at the limits
+        }
+        return next; // Continue increasing or decreasing height
+      });
+    }, intervalTime);;
+  }; 
 
   const stopHold = () => {
-    clearInterval(intervalRef.current);
-    intervalRef.current = null;
-  }; // Stop holding the button to stop increasing height
+    stopCurrentInterval(); // Stop the interval when button is released
+  };
 
   return (
     /*
@@ -106,35 +131,37 @@ export default function DeskController({ deskType }) {
       <Text style={styles.heightText}>{height} cm</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPressIn={() => startHold(decreaseHeight)}
+          onPressIn={() => startHold('down')}
           onPressOut={stopHold}
           style={styles.button}
-          >
-            <Image source={require('../assets/downButton.png')} style={{ width: 60, height: 60 }} />
-            </TouchableOpacity>
-         <TouchableOpacity
-          onPressIn={() => startHold(increaseHeight)}
+        >
+          <Image source={require('../assets/downButton.png')} style={{ width: 60, height: 60 }} />
+        </TouchableOpacity>
+       
+        <TouchableOpacity
+          onPressIn={() => startHold('up')}
           onPressOut={stopHold}
           style={styles.button}
-          >
-            <Image source={require('../assets/upButton.png')} style={{ width: 60, height: 60 }} />
+        >
+          <Image source={require('../assets/upButton.png')} style={{ width: 60, height: 60 }} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.memoryContainer}>
+        <Text style={styles.memoryLabel}>Memory Heights:</Text>
+        <View style={styles.memoryButtons}>
+          {memoryHeights.map((value, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => moveToMemoryHeight(value)}
+              style={styles.memoryButton}
+            >
+              <Text style={styles.buttonText}>{value} cm</Text>
             </TouchableOpacity>
-        </View>
-        <View style={styles.memoryContainer}>
-          <Text style={styles.memoryLabel}>Memory Heights:</Text>
-          <View style={styles.memoryButtons}>
-            {memoryHeights.map((value, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => setHeight(value)}
-                style={styles.memoryButton}
-              >
-                <Text style={styles.buttonText}>{value} cm</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          ))}
         </View>
       </View>
+    </View>
 
   );
 }
