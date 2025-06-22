@@ -1,15 +1,15 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert, } from 'react-native';
 
 
-export default function StandNotification() {
-    const DEFAULT_TIME = 45; // Default time in minutes to stand
+export default function StandNotification({ moveToMemoryHeight, memoryHeights }) {
+    const DEFAULT_TIME = 0.1; // Default time in minutes to stand
     const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME * 60); // Convert to seconds
     const [standMinutes, setStandMinutes] = useState(DEFAULT_TIME);
     const timerRef = useRef(null);
 
     const startTimer = () => {
-        if (timerRef.current) 
+        if (timerRef.current)
             return; // Prevent multiple timers
         timerRef.current = setInterval(() => {
             setTimeLeft((sec) => {
@@ -17,9 +17,10 @@ export default function StandNotification() {
                     clearInterval(timerRef.current);
                     timerRef.current = null;
                     Alert.alert('Time to stand up!', 'Your desk will rise now.', [
-                        { text: 'OK', 
+                        {
+                            text: 'OK',
                             onPress: () => {
-                                // setHeight(memoryHeights[4]); // Uncomment and define setHeight and memoryHeights if needed
+                                //setHeight(memoryHeights[3]); // can't set height yet :(
                                 setTimeLeft(DEFAULT_TIME * 60); // Reset timer
                                 setStandMinutes(DEFAULT_TIME);
                             }
@@ -39,7 +40,15 @@ export default function StandNotification() {
             <TouchableOpacity onPress={startTimer} style={styles.button}>
                 <Text style={styles.buttonText}>Start Timer</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setStandMinutes(DEFAULT_TIME)} style={styles.resetButton}>
+            <TouchableOpacity onPress={() => {
+                if (timerRef.current) {
+                    clearInterval(timerRef.current);
+                    timerRef.current = null;
+                }
+                setTimeLeft(DEFAULT_TIME * 60);
+                setStandMinutes(DEFAULT_TIME);
+            }}
+                style={styles.button}>
                 <Text style={styles.buttonText}>Reset Timer</Text>
             </TouchableOpacity>
         </View>

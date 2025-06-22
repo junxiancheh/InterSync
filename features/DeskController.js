@@ -1,12 +1,15 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, TextInput } from 'react-native'
 import { useState, useRef } from 'react'
-import { deskSettings } from './DeskSettings'; 
+import { deskSettings } from './DeskSettings';
+import StandNotification from './StandNotification';
 
 
 export default function DeskController({ deskType }) {
-
-  const { minHeight, maxHeight, maxSpeed, memoryHeights } = deskSettings[deskType]; // Get settings based on selected desk type
+  const [selectedDeskType, setSelectedDeskType] = useState(deskType); // State to track the selected desk type  
+  const { minHeight, maxHeight, maxSpeed, memoryHeights } = deskSettings[selectedDeskType]; // Get settings based on selected desk type
   const [height, setHeight] = useState(minHeight);
+  const [moving, setMoving] = useState(false); 
+
   const intervalRef = useRef(null);
 
   const stopCurrentInterval = () => {
@@ -23,9 +26,11 @@ export default function DeskController({ deskType }) {
       return; // Prevent multiple intervals or if already at target height
     }
 
+    Alert.alert('Memory Height Pressed', `Setting height to ${targetHeight} cm`); // Alert user about the movement
+    setMoving(true); // Set moving state to true
     const step = height < targetHeight ? 1 : -1; // if  height is less than targetHeight, increase height, otherwise decrease it
     const intervalTime = 1000 / (maxSpeed / 10); // Calculate interval time based on maxSpeed
-    
+
     intervalRef.current = setInterval(() => {
       setHeight((prev) => {
         const next = prev + step;
@@ -39,26 +44,9 @@ export default function DeskController({ deskType }) {
     }, intervalTime);
   }; // Move to a memory height 
 
-  /*
-  const deskSettings = {
-      Classic: { // Interdesk Classic's settings
-          minHeight: 70,
-          maxHeight: 115,
-          maxSpeed: 20,
-          memoryHeights: [70, 90, 110, 115] // Default memory heights for Interdesk Classic
-      },
-      Pro: { // Interdesk Pro's settings
-          minHeight: 70,
-          maxHeight: 120,
-          maxSpeed: 35,
-          memoryHeights: [70, 90, 110, 120] // Default memory heights for Interdesk Pro
-      }
-  } desk settings inside DeskSettings.js file
-      */
-
   const startHold = (direction) => {
     stopCurrentInterval(); // Stop any ongoing movement when button is pressed
-    
+
     const step = direction === 'up' ? 1 : -1; // Determine interval based on direction
     const intervalTime = 1000 / (maxSpeed / 10); // Calculate interval time based on maxSpeed
 
@@ -73,59 +61,25 @@ export default function DeskController({ deskType }) {
         return next; // Continue increasing or decreasing height
       });
     }, intervalTime);;
-  }; 
+  };
 
   const stopHold = () => {
     stopCurrentInterval(); // Stop the interval when button is released
   };
 
+  const handleDeskTypeChange = (type) => {
+    if (intervalRef.current) {
+      Alert.alert('Warning', `Cannot change desk type while moving.`);
+      return;
+    }
+    if (type !== selectedDeskType) {
+      setSelectedDeskType(type); // Update the selected desk type
+      Alert.alert('Desk Type Changed', `You have selected ${type} desk type.`);
+      setHeight(deskSettings[type].minHeight); // Reset height to the minimum 
+    }
+  };
+
   return (
-    /*
-    <View style={styles.container}>
-      <View style={styles.selectorContainer}>
-        <Text style={styles.selectorLabel}>Select Desk Type:</Text>
-        <View style={styles.selector}>
-          <TouchableOpacity onPress={() => setDeskType('Classic')} style={deskType === 'Classic' ? styles.selectedButton : styles.button}>
-            <Text style={styles.buttonText}>Interdesk Classic</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setDeskType('Pro')} style={deskType === 'Pro' ? styles.selectedButton : styles.button}>
-            <Text style={styles.buttonText}>Interdesk Pro</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <Text style={styles.heightText}>{height} cm</Text>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          onPressIn={() => startHold(decreaseHeight)}
-          onPressOut={stopHold}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>⬇️</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPressIn={() => startHold(increaseHeight)}
-          onPressOut={stopHold}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>⬆️</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.memoryContainer}>
-        <Text style={styles.memoryLabel}>Memory Heights:</Text>
-        <View style={styles.memoryButtons}>
-          {deskSettings[deskType].memoryHeights.map((value, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => setHeight(value)}
-              style={styles.memoryButton}
-            >
-              <Text style={styles.buttonText}>{value} cm</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </View>
-    */ // Initial code for DeskController component
     <View style={styles.container}>
       <Text style={styles.heightText}>Current Height</Text>
       <Text style={styles.heightText}>{height} cm</Text>
@@ -137,7 +91,7 @@ export default function DeskController({ deskType }) {
         >
           <Image source={require('../assets/downButton.png')} style={{ width: 60, height: 60 }} />
         </TouchableOpacity>
-       
+
         <TouchableOpacity
           onPressIn={() => startHold('up')}
           onPressOut={stopHold}
@@ -162,9 +116,9 @@ export default function DeskController({ deskType }) {
         </View>
       </View>
     </View>
-
-  );
+    );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -230,5 +184,5 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
   },
-  
-});
+
+})
