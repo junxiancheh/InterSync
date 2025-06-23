@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
-import StandNotification from '../features/StandNotification';
 
 export default function ActivityPage() {
     const [standingTime, setStandingTime] = useState(0);
     const [sittingTime, setSittingTime] = useState(0);
     const [activityLog, setActivityLog] = useState([]);
+    const [showHistory, setShowHistory] = useState(false);
 
     const addToLog = () => {
         if (standingTime === 0 && sittingTime === 0) return;
@@ -43,14 +43,22 @@ export default function ActivityPage() {
                 <Text style={styles.buttonText}>Add to Log</Text>
             </TouchableOpacity>
 
-            <Text style={styles.subTitle}>Activity Log</Text>
-            {activityLog.map((entry, index) => (
-                <View key={index} style={styles.logEntry}>
-                    <Text>{entry.date}</Text>
-                    <Text>Standing: {entry.standingTime} min</Text>
-                    <Text>Sitting: {entry.sittingTime} min</Text>
+            <TouchableOpacity onPress={() => setShowHistory(!showHistory)} style={styles.button}>
+                <Text style={styles.buttonText}>{showHistory ? 'Hide History' : 'Show History'}</Text>
+            </TouchableOpacity> 
+
+            {showHistory && (
+                <View style={{ width: '100%' }}>
+                    <Text style={styles.subTitle}>Activity Log</Text>
+                    {activityLog.map((entry, index) => (
+                        <View key={index} style={styles.logEntry}>
+                            <Text>{entry.date}</Text>
+                            <Text>Standing: {entry.standingTime} min</Text>
+                            <Text>Sitting: {entry.sittingTime} min</Text>
+                        </View>
+                    ))}
                 </View>
-            ))}
+            )}
         </ScrollView>
     );
 }
