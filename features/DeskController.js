@@ -50,6 +50,7 @@ export default function DeskController({ deskType }) {
 
   const startHold = (direction) => {
     stopCurrentInterval(); // Stop any ongoing movement when button is pressed
+    Alert.alert('Alert', `Paused memory height adjustment`);
     setMoving(true);
 
     const step = direction === 'up' ? 1 : -1; // Determine interval based on direction
