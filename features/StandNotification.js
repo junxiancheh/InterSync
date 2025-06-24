@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert, } from 'react-native';
 
 
 export default function StandNotification({ moveToMemoryHeight, memoryHeights }) {
-    const DEFAULT_TIME = 0.1; // Default time in minutes to stand
+    const DEFAULT_TIME = 45; // Default time in minutes to stand
     const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME * 60); // Convert to seconds
     const [standMinutes, setStandMinutes] = useState(DEFAULT_TIME);
     const timerRef = useRef(null);

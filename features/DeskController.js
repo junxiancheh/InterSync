@@ -1,21 +1,24 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, TextInput } from 'react-native'
-import { useState, useRef } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native'
+import { useState, useRef, useEffect } from 'react'
 import { deskSettings } from './DeskSettings';
-import StandNotification from './StandNotification';
-
 
 export default function DeskController({ deskType }) {
-  const [selectedDeskType, setSelectedDeskType] = useState(deskType); // State to track the selected desk type  
-  const { minHeight, maxHeight, maxSpeed, memoryHeights } = deskSettings[selectedDeskType]; // Get settings based on selected desk type
-  const [height, setHeight] = useState(minHeight);
+  //const [selectedDeskType, setSelectedDeskType] = useState(deskType); // State to track the selected desk type  
+  const [height, setHeight] = useState(deskSettings[deskType].minHeight);
   const [moving, setMoving] = useState(false); 
 
+  const { minHeight, maxHeight, maxSpeed, memoryHeights } = deskSettings[deskType];
   const intervalRef = useRef(null);
+ 
+  useEffect(() => {
+    setHeight(deskSettings[deskType].minHeight);
+  }, [deskType]);
 
   const stopCurrentInterval = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null; // Clear the reference to the interval
+      setMoving(false);
     }
   };
 
@@ -23,11 +26,13 @@ export default function DeskController({ deskType }) {
     stopCurrentInterval(); // Stop any ongoing movement when pressed
 
     if (height === targetHeight || intervalRef.current) {
+      Alert.alert('Alert', `Desk is already at ${targetHeight} cm.`);
       return; // Prevent multiple intervals or if already at target height
     }
 
-    Alert.alert('Memory Height Pressed', `Setting height to ${targetHeight} cm`); // Alert user about the movement
+    Alert.alert('Memory Height Pressed', `Setting height to ${targetHeight} cm... `); // Alert user about the movement
     setMoving(true); // Set moving state to true
+
     const step = height < targetHeight ? 1 : -1; // if  height is less than targetHeight, increase height, otherwise decrease it
     const intervalTime = 1000 / (maxSpeed / 10); // Calculate interval time based on maxSpeed
 
@@ -35,8 +40,7 @@ export default function DeskController({ deskType }) {
       setHeight((prev) => {
         const next = prev + step;
         if ((step > 0 && next >= targetHeight) || (step < 0 && next <= targetHeight)) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
+          stopCurrentInterval();
           return targetHeight; // Stop at target height
         }
         return next; // Continue moving towards target height
@@ -46,6 +50,7 @@ export default function DeskController({ deskType }) {
 
   const startHold = (direction) => {
     stopCurrentInterval(); // Stop any ongoing movement when button is pressed
+    setMoving(true);
 
     const step = direction === 'up' ? 1 : -1; // Determine interval based on direction
     const intervalTime = 1000 / (maxSpeed / 10); // Calculate interval time based on maxSpeed
@@ -65,18 +70,6 @@ export default function DeskController({ deskType }) {
 
   const stopHold = () => {
     stopCurrentInterval(); // Stop the interval when button is released
-  };
-
-  const handleDeskTypeChange = (type) => {
-    if (intervalRef.current) {
-      Alert.alert('Warning', `Cannot change desk type while moving.`);
-      return;
-    }
-    if (type !== selectedDeskType) {
-      setSelectedDeskType(type); // Update the selected desk type
-      Alert.alert('Desk Type Changed', `You have selected ${type} desk type.`);
-      setHeight(deskSettings[type].minHeight); // Reset height to the minimum 
-    }
   };
 
   return (
@@ -104,7 +97,7 @@ export default function DeskController({ deskType }) {
       <View style={styles.memoryContainer}>
         <Text style={styles.memoryLabel}>Memory Heights:</Text>
         <View style={styles.memoryButtons}>
-          {memoryHeights.map((value, index) => (
+          {(memoryHeights).map((value, index) => (
             <TouchableOpacity
               key={index}
               onPress={() => moveToMemoryHeight(value)}
