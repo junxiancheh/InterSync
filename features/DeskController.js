@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from 'react'
 import { deskSettings } from './DeskSettings';
 
 export default function DeskController({ deskType }) {
-  //const [selectedDeskType, setSelectedDeskType] = useState(deskType); // State to track the selected desk type  
   const [height, setHeight] = useState(deskSettings[deskType].minHeight);
   const [moving, setMoving] = useState(false); 
 
