@@ -1,5 +1,5 @@
 {
-  "name": "smartdeskapp",
+  "name": "intersync",
   "license": "0BSD",
   "version": "1.0.0",
   "main": "index.js",
@@ -11,10 +11,14 @@
   },
   "dependencies": {
     "@expo/ngrok": "^4.1.3",
+    "@react-navigation/bottom-tabs": "^7.4.2",
     "expo": "~53.0.9",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
-    "react-native": "0.79.2"
+    "react-native": "0.79.2",
+    "react-native-android-location-enabler": "^1.1.0",
+    "react-native-ble-plx": "^3.5.0",
+    "react-native-permissions": "^5.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
