@@ -100,6 +100,7 @@ export default function ActivityPage() {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.divider} />
             <Text style={styles.title}>Activity Logger</Text>
+              <Text style={styles.description}>Track your sitting and standing times using this logger!</Text>
             <Text> Enter sitting time in minutes </Text>
             <TextInput
                 keyboardType="numeric"
@@ -122,6 +123,7 @@ export default function ActivityPage() {
             </TouchableOpacity>
             <View style={styles.divider} />
             <Text style={styles.title}>Summary</Text>
+            <Text style={styles.description}>The summary page contains your sit-stand habits. Tap below to filter by day, week or month!</Text>
             <View style={styles.filterContainer}>
                 <TouchableOpacity
                     onPress={() => setFilter('day')}
@@ -185,6 +187,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 18,
         marginTop: 20,
+        marginBottom: 10,
+    },
+    description: {
+        fontSize: 12,
         marginBottom: 10,
     },
     logEntry: {

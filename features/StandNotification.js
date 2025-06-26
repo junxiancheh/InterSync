@@ -55,7 +55,7 @@ export default function StandNotification({ moveToMemoryHeight, memoryHeights })
                 value={customMinutes}
                 onChangeText={setCustomMinutes}
                 keyboardType="numeric"
-                style={{ borderWidth: 1, width: 150, padding: 10, fontSize: 16, marginBottom: 10 }}
+                style={{ borderWidth: 1, width: 150, padding: 10, fontSize: 16, marginBottom: 10, borderRadius: 5, }}
             />
             <View style={styles.buttonRow}>
                 <TouchableOpacity onPress={startTimer} style={styles.button}>
@@ -88,10 +88,10 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 15,
     },
     timerText: {
-        fontSize: 48,
+        fontSize: 30,
         fontWeight: 'bold',
         marginBottom: 20,
     },
