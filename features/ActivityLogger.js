@@ -100,7 +100,7 @@ export default function ActivityPage() {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.divider} />
             <Text style={styles.title}>Activity Logger</Text>
-              <Text style={styles.description}>Track your sitting and standing times using this logger!</Text>
+            <Text style={styles.description}>Track your sitting and standing times using this logger!</Text>
             <Text> Enter sitting time in minutes </Text>
             <TextInput
                 keyboardType="numeric"
@@ -147,6 +147,18 @@ export default function ActivityPage() {
             {renderSummary()}
             <TouchableOpacity onPress={() => setShowHistory(!showHistory)} style={styles.historyButton}>
                 <Text style={styles.historyButtonText}>{showHistory ? 'Hide History' : 'Show History'}</Text>
+                {showHistory && (
+                    <View style={{ width: '100%' }}>
+                        <Text style={styles.subTitle}>Activity Log History</Text>
+                        {activityLog.map((entry, index) => (
+                            <View key={index} style={styles.logEntry}>
+                                <Text>{entry.date}</Text>
+                                <Text>Standing: {entry.standingTime} min</Text>
+                                <Text>Sitting: {entry.sittingTime} min</Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
             </TouchableOpacity>
         </ScrollView>
     );
@@ -188,6 +200,8 @@ const styles = StyleSheet.create({
         fontSize: 18,
         marginTop: 20,
         marginBottom: 10,
+        textAlign: 'center',
+    
     },
     description: {
         fontSize: 12,
@@ -240,11 +254,11 @@ const styles = StyleSheet.create({
     },
     historyButtonText: {
         fontWeight: 'bold',
-        color: 'white',
+        color: '#000',
         fontSize: 16,
     },
     historyButton: {
-        backgroundColor: '#000',
+        backgroundColor: '#fff',
         padding: 12,
         borderRadius: 6,
         marginVertical: 5,
