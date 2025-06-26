@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import LocationGPS from '../features/LocationGPS'
+import BluetoothConnector from '../features/BluetoothConnector';
 
 export default function SettingsPage() {
   return (

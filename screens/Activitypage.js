@@ -1,6 +1,6 @@
 import StandNotification from '../features/StandNotification';
-import  ActivityLogger  from '../features/ActivityLogger';
-import { View, Text, ScrollView, TouchableOpacity, } from 'react-native';
+import ActivityLogger from '../features/ActivityLogger';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useState } from 'react';
 
 
@@ -12,7 +12,7 @@ export default function ActivityPage() {
       </View>
       <StandNotification />
       <ActivityLogger />
-      <Text>Features coming soon.</Text>
+      <Text>Goal features coming soon.</Text>
     </ScrollView>
-  );
+  )
 }
