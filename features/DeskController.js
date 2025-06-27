@@ -2,13 +2,14 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-na
 import { useState, useRef, useEffect } from 'react'
 import { deskSettings } from './DeskSettings';
 
-export default function DeskController({ deskType }) {
+
+export default function deskController({ deskType }) {
   const [height, setHeight] = useState(deskSettings[deskType].minHeight);
-  const [moving, setMoving] = useState(false); 
+  const [moving, setMoving] = useState(false);
 
   const { minHeight, maxHeight, maxSpeed, memoryHeights } = deskSettings[deskType];
   const intervalRef = useRef(null);
- 
+
   useEffect(() => {
     setHeight(deskSettings[deskType].minHeight);
   }, [deskType]);
@@ -20,6 +21,7 @@ export default function DeskController({ deskType }) {
       setMoving(false);
     }
   };
+
 
   const moveToMemoryHeight = (targetHeight) => {
     stopCurrentInterval(); // Stop any ongoing movement when pressed
@@ -48,8 +50,7 @@ export default function DeskController({ deskType }) {
   }; // Move to a memory height 
 
   const startHold = (direction) => {
-    stopCurrentInterval(); // Stop any ongoing movement when button is pressed
-    Alert.alert('Alert', `Paused memory height adjustment`);
+    stopCurrentInterval(); // Stop any ongoing movement from mem height when button is pressed
     setMoving(true);
 
     const step = direction === 'up' ? 1 : -1; // Determine interval based on direction
@@ -82,7 +83,7 @@ export default function DeskController({ deskType }) {
           onPressOut={stopHold}
           style={styles.button}
         >
-          <Image source={require('../assets/downButton.png')} style={{ width: 60, height: 60 }} />
+          <Image source={require('../assets/down-button.png')} style={{ width: 60, height: 60 }} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -90,7 +91,7 @@ export default function DeskController({ deskType }) {
           onPressOut={stopHold}
           style={styles.button}
         >
-          <Image source={require('../assets/upButton.png')} style={{ width: 60, height: 60 }} />
+          <Image source={require('../assets/up-button.png')} style={{ width: 60, height: 60 }} />
         </TouchableOpacity>
       </View>
 
@@ -109,7 +110,7 @@ export default function DeskController({ deskType }) {
         </View>
       </View>
     </View>
-    );
+  );
 }
 
 const styles = StyleSheet.create({

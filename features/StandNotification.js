@@ -17,7 +17,7 @@ export default function StandNotification({ moveToMemoryHeight, memoryHeights })
             return;
         }
 
-        if (minutes > 30) { // 30 minutes
+        if (minutes > 30) {
             Alert.alert('Alert', `It's recommended to not sit for more 30 minutes.`)
         };
 
@@ -55,22 +55,25 @@ export default function StandNotification({ moveToMemoryHeight, memoryHeights })
                 value={customMinutes}
                 onChangeText={setCustomMinutes}
                 keyboardType="numeric"
-                style={{ borderWidth: 1, width: 150, padding: 10, fontSize: 16, marginBottom: 10}}
-                />
-            <TouchableOpacity onPress={startTimer} style={styles.button}>
-                <Text style={styles.buttonText}>Start Timer</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-                if (timerRef.current) {
-                    clearInterval(timerRef.current);
-                    timerRef.current = null;
-                }
-                setTimeLeft(DEFAULT_TIME * 60);
-                setStandMinutes(DEFAULT_TIME);
-            }}
-                style={styles.button}>
-                <Text style={styles.buttonText}>Reset Timer</Text>
-            </TouchableOpacity>
+                style={{ borderWidth: 1, width: 150, padding: 10, fontSize: 16, marginBottom: 10, borderRadius: 5, }}
+            />
+            <View style={styles.buttonRow}>
+                <TouchableOpacity onPress={startTimer} style={styles.button}>
+                    <Text style={styles.buttonText}>Start Timer</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                    if (timerRef.current) {
+                        clearInterval(timerRef.current);
+                        timerRef.current = null;
+                    }
+                    setTimeLeft(DEFAULT_TIME * 60);
+                    setStandMinutes(DEFAULT_TIME);
+                }}
+                    style={styles.button}>
+                    <Text style={styles.buttonText}>Reset Timer</Text>
+                </TouchableOpacity>
+            </View>
+            <Text> It's recommended to sit for less than 30 minutes!</Text>
         </View>
     );
 };
@@ -85,10 +88,10 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 15,
     },
     timerText: {
-        fontSize: 48,
+        fontSize: 30,
         fontWeight: 'bold',
         marginBottom: 20,
     },
@@ -97,6 +100,7 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 5,
         marginBottom: 10,
+        alignItems: 'center',
     },
     resetButton: {
         backgroundColor: '#000',
@@ -104,7 +108,14 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     buttonText: {
+        fontWeight: 'bold',
         color: '#fff',
         fontSize: 18,
     },
+    buttonRow: {
+        flexDirection: 'row',
+        width: '100%',
+        marginVertical: 10,
+        gap: 20,
+    }
 });
