@@ -6,19 +6,6 @@ Team Member: Cheh Jun Xian, Palaniappan Kannappan
 
 Proposed Level of Achievement: Apollo 11
 
-**Project Poster**: [Link](https://drive.google.com/file/d/1zr5ZpEGZxX6DzhqKcl3pGvZAROrLLeBX/view)
-
-**Project Video**: [Link](https://drive.google.com/file/d/1tF2hja98PHN4CFZccdPgOI25qJePA_pV/view?usp=sharing)
-
-**Project Log**: [Link](https://docs.google.com/spreadsheets/d/1ggtJlYpsDXGEG9uSvqFf4-HpyCmRB_a1ReXKecVyrRw/edit?usp=sharing)
-
-## HOW TO USE
-**EXPO GO**
-
-Android Users can scan the following QR Code to use the application after downloading Expo Go application from Google Play Store. For iOS, use the camera app. Please contact @junxiancheh or @Kpboss188 on Telegram if the QR is invalid!
-
-![Background](https://github.com/junxiancheh/InterSync/blob/0275721b46f0e97cf42f7669786fb69d68b978d2/assets/expogo3.png)
-
 **Features**
 
 <h3 align="center">Feature 1: Desk Control Interface</h3>
