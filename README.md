@@ -6,16 +6,6 @@ Team Member: Cheh Jun Xian, Palaniappan Kannappan
 
 Proposed Level of Achievement: Apollo 11
 
-**Features**
-
-<h3 align="center">Feature 1: Desk Control Interface</h3>
-
-<p align="center">
-  <img src="https://github.com/junxiancheh/InterSync/blob/c49849a731b5184b992517205332e507d819279a/assets/Screenshot_1748956112.png" width="400" height="800" />
-</p>
-
-Control the height of the desk using the Up and Down buttons. The default desk is set to our Classic desk, which has a minimum height of 70cm and maximum height of 120cm, and maximum speed of 20mm/s.
-
 
 ## Motivation 
 As the founders of Interdesk, we started out with a mission to promote ergonomics in homes and office spaces. In today's work environment, prolonged sitting has become a major health concern, contributing to issues like poor posture, back pain, and decreased productivity. While our adjustable desks offer a solution, we realized that many users struggle to maintain a consistent routine of switching between sitting and standing and thus they do not fully leverage the health benefits these desks can offer. Many people set up their desks with the intention to be more active, but without the right reminders, it's easy to slip back into old habits. This leads to missed opportunities for better posture, improved circulation, and overall health.
