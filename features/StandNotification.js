@@ -117,5 +117,7 @@ const styles = StyleSheet.create({
         width: '100%',
         marginVertical: 10,
         gap: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
     }
 });

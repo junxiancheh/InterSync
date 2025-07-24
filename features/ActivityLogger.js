@@ -1,32 +1,83 @@
-import { useState } from 'react';
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 
-export default function ActivityPage() {
+const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
     const [standingTime, setStandingTime] = useState(0);
     const [sittingTime, setSittingTime] = useState(0);
     const [activityLog, setActivityLog] = useState([]);
     const [showHistory, setShowHistory] = useState(false);
     const [filter, setFilter] = useState('day');
 
-    const addToLog = () => {
+    const calculateDailyStanding = (logs) => { // Calculate total standing time for today
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of today
+        return logs
+            .filter(log => new Date(log.timestamp) >= today)
+            .reduce((sum, log) => sum + log.standingTime, 0); // Sum standing times for today
+    };
+
+    useImperativeHandle(ref, () => ({
+        getActivityData: () => { // Return data for charts and loggings
+            return {
+                daily: processDataForChart('day'),
+                weekly: processDataForChart('week'),
+                monthly: processDataForChart('month'),
+                rawLogs: [...activityLog]
+            };
+        },
+        getDailyStandingTime: () => calculateDailyStanding(activityLog),
+        getTimeData: (period) => { // Get total standing and sitting times for the specified period
+            const logs = filterLogs(period);
+            return {
+                standing: logs.reduce((sum, log) => sum + log.standingTime, 0),
+                sitting: logs.reduce((sum, log) => sum + log.sittingTime, 0)
+            };
+        }
+    }));
+
+    // Process data for charts
+    const processDataForChart = (period) => {
+        const logs = filterLogs(period);
+        const count = Math.min(logs.length, 7); // Limit to 7 entries for day/week, or 4 for month
+
+        return {
+            labels: Array.from({ length: count }, (_, i) => {
+                if (period === 'day') return `${i + 8}:00`; 
+                if (period === 'week') return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]; 
+                return `Week ${i + 1}`;
+            }),
+            standing: logs.slice(0, count).map(log => log.standingTime),
+            sitting: logs.slice(0, count).map(log => log.sittingTime)
+        };
+    };
+
+    const addToLog = () => { // Add new log entry
         if (standingTime === 0 && sittingTime === 0) return;
-        const newLog = {
+
+        const newLog = { // Create a new log entry
             date: new Date().toLocaleString(),
-            timestamp: new Date().getTime(),
+            timestamp: Date.now(),
             standingTime,
             sittingTime,
         };
-        setActivityLog([newLog, ...activityLog]); // add to top
+
+        const updatedLogs = [newLog, ...activityLog];
+        const newDailyStanding = calculateDailyStanding(updatedLogs);
+
+        setActivityLog(updatedLogs);
         setStandingTime(0);
         setSittingTime(0);
+
+        // Immediately notify parent with the new standing time
+        onLogAdded(newDailyStanding);
     };
-    // Helper function for filtering logs
+
     const filterLogs = (period) => {
         const now = new Date();
-        const currentTime = now.getTime();
+        const currentTime = now.getTime(); 
 
-        switch (period) {
-            case 'day':
+        switch (period) { // Filter logs based on the selected period
+            case 'day': 
                 const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
                 return activityLog.filter(log => log.timestamp >= startOfDay);
             case 'week':
@@ -40,8 +91,7 @@ export default function ActivityPage() {
         }
     };
 
-    // Calculating summary statistics
-    const calculateSummary = (logs) => {
+    const calculateSummary = (logs) => { // Calculate total and average standing/sitting times
         const totalStanding = logs.reduce((sum, log) => sum + log.standingTime, 0);
         const totalSitting = logs.reduce((sum, log) => sum + log.sittingTime, 0);
 
@@ -56,7 +106,7 @@ export default function ActivityPage() {
     const filteredLogs = filterLogs(filter);
     const summary = calculateSummary(filteredLogs);
 
-    const renderSummary = () => {
+    const renderSummary = () => { // Render summary based on the selected filter
         switch (filter) {
             case 'day':
                 return (
@@ -101,7 +151,8 @@ export default function ActivityPage() {
             <View style={styles.divider} />
             <Text style={styles.title}>Activity Logger</Text>
             <Text style={styles.description}>Track your sitting and standing times using this logger!</Text>
-            <Text> Enter sitting time in minutes </Text>
+
+            <Text>Enter sitting time in minutes</Text>
             <TextInput
                 keyboardType="numeric"
                 value={sittingTime.toString()}
@@ -109,7 +160,8 @@ export default function ActivityPage() {
                 placeholder="Enter sitting time in minutes"
                 style={styles.input}
             />
-            <Text> Enter standing time in minutes </Text>
+
+            <Text>Enter standing time in minutes</Text>
             <TextInput
                 keyboardType="numeric"
                 value={standingTime.toString()}
@@ -121,9 +173,11 @@ export default function ActivityPage() {
             <TouchableOpacity onPress={addToLog} style={styles.button}>
                 <Text style={styles.buttonText}>Add to Log</Text>
             </TouchableOpacity>
+
             <View style={styles.divider} />
             <Text style={styles.title}>Summary</Text>
             <Text style={styles.description}>The summary page contains your sit-stand habits. Tap below to filter by day, week or month!</Text>
+
             <View style={styles.filterContainer}>
                 <TouchableOpacity
                     onPress={() => setFilter('day')}
@@ -144,9 +198,16 @@ export default function ActivityPage() {
                     <Text>Month</Text>
                 </TouchableOpacity>
             </View>
+
             {renderSummary()}
-            <TouchableOpacity onPress={() => setShowHistory(!showHistory)} style={styles.historyButton}>
-                <Text style={styles.historyButtonText}>{showHistory ? 'Hide History' : 'Show History'}</Text>
+
+            <TouchableOpacity
+                onPress={() => setShowHistory(!showHistory)}
+                style={styles.historyButton}
+            >
+                <Text style={styles.historyButtonText}>
+                    {showHistory ? 'Hide History' : 'Show History'}
+                </Text>
                 {showHistory && (
                     <View style={{ width: '100%' }}>
                         <Text style={styles.subTitle}>Activity Log History</Text>
@@ -162,7 +223,7 @@ export default function ActivityPage() {
             </TouchableOpacity>
         </ScrollView>
     );
-}
+});
 
 const styles = StyleSheet.create({
     scrollContainer: {
@@ -201,7 +262,6 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
         textAlign: 'center',
-    
     },
     description: {
         fontSize: 12,
@@ -265,6 +325,6 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     }
-
 });
 
+export default ActivityLogger;
