@@ -1,5 +1,8 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
+import { useEffect } from 'react';
+import { auth, db } from '../firebase'; // Import Firebase Authentication and Firestore
+import { collection, addDoc, query, where, orderBy, onSnapshot, Timestamp } from "firebase/firestore"
 
 const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
     const [standingTime, setStandingTime] = useState(0);
@@ -7,9 +10,54 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
     const [activityLog, setActivityLog] = useState([]);
     const [showHistory, setShowHistory] = useState(false);
     const [filter, setFilter] = useState('day');
+    const [loading, setLoading] = useState(false);
+    const [dailyStanding, setDailyStanding] = useState(0);
+
+
+    // Fetch activity logs from Firestore
+    useEffect(() => {
+        if (!auth.currentUser) return; // Ensure user is authenticated
+
+        setLoading(true);
+        const activitiesRef = collection(db, "activities"); // Firebase activities
+        const userQuery = query( // Fetch logs for the current user
+            activitiesRef, 
+            where("userId", "==", auth.currentUser.uid),
+            orderBy("timestamp", "desc")
+        );
+
+        const unsubscribe = onSnapshot(userQuery, (snapshot) => {
+            const logs = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                logs.push({
+                    id: doc.id, // Use Firestore document ID as log ID
+                    date: data.timestamp.toDate().toLocaleString(), // Format date for display
+                    timestamp: data.timestamp.toMillis(), // Store timestamp in milliseconds
+                    standingTime: data.standingTime, // Store standing time
+                    sittingTime: data.sittingTime // Store sitting time
+                });
+            });
+            setActivityLog(logs);
+            setLoading(false);
+        }, (error) => {
+            console.error("Firestore error:", error);
+            setLoading(false);
+            Alert.alert("Error", "Failed to load activity data");
+        });
+
+        return unsubscribe;
+    }, []);
+
+    useEffect(() => {
+        const newDailyStanding = calculateDailyStanding(activityLog);
+        setDailyStanding(newDailyStanding);
+
+        if (onLogAdded) onLogAdded(newDailyStanding); // notiify goal tracker of new standing time
+    }, [activityLog]);
 
     const calculateDailyStanding = (logs) => { // Calculate total standing time for today
-        const today = new Date();
+        const today = new Date(); // Get today's date
         today.setHours(0, 0, 0, 0); // Set to start of today
         return logs
             .filter(log => new Date(log.timestamp) >= today)
@@ -29,8 +77,8 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
         getTimeData: (period) => { // Get total standing and sitting times for the specified period
             const logs = filterLogs(period);
             return {
-                standing: logs.reduce((sum, log) => sum + log.standingTime, 0),
-                sitting: logs.reduce((sum, log) => sum + log.sittingTime, 0)
+                standing: logs.reduce((sum, log) => sum + log.standingTime, 0), // Total standing time
+                sitting: logs.reduce((sum, log) => sum + log.sittingTime, 0) // Total sitting time
             };
         }
     }));
@@ -42,8 +90,8 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
 
         return {
             labels: Array.from({ length: count }, (_, i) => {
-                if (period === 'day') return `${i + 8}:00`; 
-                if (period === 'week') return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i];
+                if (period === 'day') return `${i + 8}:00`; // time labels for day
+                if (period === 'week') return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]; // Return day names for week
                 return `Week ${i + 1}`;
             }),
             standing: logs.slice(0, count).map(log => log.standingTime),
@@ -51,25 +99,47 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
         };
     };
 
-    const addToLog = () => { // Add new log entry
-        if (standingTime === 0 && sittingTime === 0) return;
+    const addToLog = async () => { // Add new log entry
+        if (standingTime === 0 && sittingTime === 0) return; // refuse empty logs
+        if (!auth.currentUser) { // Ensure user is logged in
+            Alert.alert("Error", "You must be logged in to log activities");
+            return;
+        }
 
-        const newLog = { // Create a new log entry
-            date: new Date().toLocaleString(),
-            timestamp: Date.now(),
-            standingTime,
-            sittingTime,
-        };
+        try {
+            const tempId = `temp-${Date.now()}`; // Temporary ID for optimistic UI update
+            const newLog = {
+                id: tempId, // Use temporary ID for immediate UI update
+                timestamp: Timestamp.now(), // Use Firestore timestamp
+                standingTime: Number(standingTime), // Ensure standing time is a number
+                sittingTime: Number(sittingTime), // Ensure sitting time is a number
+            };
+            setActivityLog(prevLogs => [newLog, ...prevLogs]);
 
-        const updatedLogs = [newLog, ...activityLog];
-        const newDailyStanding = calculateDailyStanding(updatedLogs);
+            const docRef = await addDoc(collection(db, "activities"), {
+                userId: auth.currentUser.uid, // Store user ID for filtering
+                timestamp: Timestamp.now(), // Use Firestore timestamp
+                standingTime: Number(standingTime), // Ensure standing time is a number
+                sittingTime: Number(sittingTime), // Ensure sitting time is a number
+            });
+            
+            // Replace temporary log with permanent one from Firestore
+            setActivityLog(prevLogs => prevLogs.map(log => 
+                log.id === tempId ? { 
+                    ...log,
+                    id: docRef.id
+                } : log
+            ));
+            
+            // Reset fields 
+            setStandingTime(0);
+            setSittingTime(0);
 
-        setActivityLog(updatedLogs);
-        setStandingTime(0);
-        setSittingTime(0);
-
-        // Immediately notify parent with the new standing time
-        onLogAdded(newDailyStanding);
+        } catch (error) {
+            console.error("Error adding activity:", error);
+            Alert.alert("Error", "Failed to save activity");
+            setActivityLog(prevLogs => prevLogs.filter(log => !log.id.startsWith('temp-')));
+        }
     };
 
     const filterLogs = (period) => {
