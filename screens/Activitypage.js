@@ -77,7 +77,8 @@ const ActivityPage = () => {
           <Text style={styles.chartTitle}>
             {timeRange === 'day' ? 'Daily' : timeRange === 'week' ? 'Weekly' : 'Monthly'} Activity Breakdown
           </Text>
-
+          <Text style={styles.chartSubtitle}>
+            If the chart is not updated, reclick any of the buttons!  </Text>
           <PieChart
             data={chartData}
             width={Dimensions.get('window').width - 40}
@@ -153,6 +154,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     marginBottom: 10,
+    textAlign: 'center'
+  },
+  chartSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 15,
     textAlign: 'center'
   },
   toggleButton: {

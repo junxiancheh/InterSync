@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
 import DeskController from '../features/DeskController';
-import GoalTracker from '../features/GoalTracker';
+
 
 export default function Homepage({ deskType, setDeskType }) {
     return (
