@@ -78,7 +78,7 @@ const ActivityPage = () => {
             {timeRange === 'day' ? 'Daily' : timeRange === 'week' ? 'Weekly' : 'Monthly'} Activity Breakdown
           </Text>
           <Text style={styles.chartSubtitle}>
-            If the chart is not updated, reclick any of the buttons!  </Text>
+            If the chart is not updated, reclick any of the other buttons and return back!  </Text>
           <PieChart
             data={chartData}
             width={Dimensions.get('window').width - 40}

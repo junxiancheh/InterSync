@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, TextInput, Alert, StyleSheet, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, TextInput, Image, Alert, StyleSheet, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { auth } from '../firebase';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -74,6 +74,9 @@ export default function SignupScreen({ navigation }) {
       style={styles.container}
     >
       <View style={styles.innerContainer}>
+         <Image source={require('../assets/logo.png')}
+                                style={{ width: 100, height: 100, marginBottom: 20, alignSelf: 'center' }} 
+                              />
         <Text style={styles.title}>Create Account</Text>
         
         <TextInput

@@ -78,10 +78,11 @@ export default function LoginScreen({ navigation }) {
       style={styles.container}
     >
       <View style={styles.innerContainer}>
-        <Text style={styles.title}>Login</Text>
-        <Image source={require('../assets/logo.png')}
-                        style={{ width: 100, height: 100, marginBottom: 20 }} 
+         <Image source={require('../assets/logo.png')}
+                        style={{ width: 100, height: 100, marginBottom: 20, alignSelf: 'center' }} 
                       />
+        <Text style={styles.title}>Login</Text>
+
         
         
         <TextInput

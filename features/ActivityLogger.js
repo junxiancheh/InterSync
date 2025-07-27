@@ -43,7 +43,7 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
         return {
             labels: Array.from({ length: count }, (_, i) => {
                 if (period === 'day') return `${i + 8}:00`; 
-                if (period === 'week') return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]; 
+                if (period === 'week') return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i];
                 return `Week ${i + 1}`;
             }),
             standing: logs.slice(0, count).map(log => log.standingTime),
@@ -74,10 +74,10 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
 
     const filterLogs = (period) => {
         const now = new Date();
-        const currentTime = now.getTime(); 
+        const currentTime = now.getTime();
 
         switch (period) { // Filter logs based on the selected period
-            case 'day': 
+            case 'day':
                 const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
                 return activityLog.filter(log => log.timestamp >= startOfDay);
             case 'week':
@@ -107,11 +107,39 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
     const summary = calculateSummary(filteredLogs);
 
     const renderSummary = () => { // Render summary based on the selected filter
+        // Format date for display
+        const formatDate = (date) => {
+            return date.toLocaleDateString('en-US');
+        };
+        // Get the current date 
+        const now = new Date();
+
+        // Determine the date range based on the filter
+        switch (filter) {
+            case 'day':
+                dateRange = formatDate(now);
+                break;
+            case 'week':
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay());
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() - 6);
+                dateRange = `${formatDate(endOfWeek)} - ${formatDate(startOfWeek)}`;
+                break;
+            case 'month':
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                dateRange = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+                break;
+        }
+
         switch (filter) {
             case 'day':
                 return (
                     <View style={styles.summaryContainer}>
-                        <Text style={styles.summaryTitle}>Daily Summary</Text>
+                        <Text style={styles.summaryTitle}>Daily Summary - {dateRange}</Text>
                         <View style={styles.divider} />
                         <Text>Total Standing: {summary.totalStanding} min</Text>
                         <Text>Total Sitting: {summary.totalSitting} min</Text>
@@ -120,7 +148,7 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
             case 'week':
                 return (
                     <View style={styles.summaryContainer}>
-                        <Text style={styles.summaryTitle}>Weekly Summary</Text>
+                        <Text style={styles.summaryTitle}>Weekly Summary ({dateRange})</Text>
                         <View style={styles.divider} />
                         <Text>Total Standing: {summary.totalStanding} min</Text>
                         <Text>Total Sitting: {summary.totalSitting} min</Text>
@@ -132,7 +160,7 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
             case 'month':
                 return (
                     <View style={styles.summaryContainer}>
-                        <Text style={styles.summaryTitle}>Monthly Summary</Text>
+                        <Text style={styles.summaryTitle}>Monthly Summary - {dateRange}</Text>
                         <View style={styles.divider} />
                         <Text>Total Standing: {summary.totalStanding} min</Text>
                         <Text>Total Sitting: {summary.totalSitting} min</Text>

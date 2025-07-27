@@ -33,7 +33,7 @@ export default function DeskController() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Main Controller</Text>
-      <Text style={styles.instruction}>Hold to adjust your desk height</Text>
+      <Text style={styles.instruction}>Hold to adjust your desk height!</Text>
       
       <View style={[styles.connectionStatus, {backgroundColor: connected ? '#4CAF50' : '#F44336'}]}>
         <Text style={styles.connectionText}>
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#888',
     marginBottom: 30,
+    textAlign: 'center',
   },
   connectionStatus: {
     paddingVertical: 8,
