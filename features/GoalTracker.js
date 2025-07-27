@@ -12,7 +12,7 @@ const GoalTracker = ({ dailyGoal, setDailyGoal, currentStanding }) => {
         if (currentStanding >= dailyGoal && dailyGoal > 0) {
             setShowCelebration(true);
             Animated.timing(fadeAnim, {
-                toValue: 1,
+                toValue: 1, 
                 duration: 1000,
                 useNativeDriver: true,
             }).start();

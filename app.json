@@ -14,14 +14,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "infoPlist": [
-        "NSBluetoothAlwaysUsageDescription"
-      ],
       "bundleIdentifier": "com.anonymous.InterSync"
     },
     "android": {
       "permissions": [
-
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
         "android.permission.BLUETOOTH",
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT"
@@ -38,6 +37,17 @@
     },
     "plugins": [
       "react-native-ble-plx"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "bc02ad3f-39db-43f9-a854-d307c494e349"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/bc02ad3f-39db-43f9-a854-d307c494e349"
+    }
   }
 }
