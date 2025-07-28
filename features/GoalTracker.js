@@ -22,7 +22,27 @@ const GoalTracker = ({ dailyGoal, setDailyGoal, currentStanding }) => {
         }
     }, [currentStanding, dailyGoal]);
 
+    const validateGoal = (value) => { // validate goal input
+        const numValue = parseInt(value);
+        if (isNaN(numValue)) {
+            return 'Please enter a valid number';
+        }
+        if (numValue <= 0) {
+            return 'Goal must be greater than 0';
+        }
+        if (numValue > 1440) {
+            return 'You cannot set a goal greater than 1440 minutes sorry!';
+        }
+        return '';
+    };
+
     const handleSetGoal = () => {
+        const error = validateGoal(goalInput);
+        if (error) {
+            setInputError(error);
+            return;
+        }
+        
         const newGoal = parseInt(goalInput);
         if (!isNaN(newGoal) && newGoal > 0) {
             setDailyGoal(newGoal);

@@ -101,6 +101,14 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
 
     const addToLog = async () => { // Add new log entry
         if (standingTime === 0 && sittingTime === 0) return; // refuse empty logs
+        if (standingTime < 0 || sittingTime < 0) {  
+            Alert.alert("Error", "Standing and sitting times must be non-negative");
+            return;
+        } // handle edge cases
+        if (standingTime > 1440 || sittingTime > 1440) { // Limit to 24 hours
+            Alert.alert("Error", "Standing and sitting times cannot exceed 24 hours");
+            return;
+        } // handle edge cases
         if (!auth.currentUser) { // Ensure user is logged in
             Alert.alert("Error", "You must be logged in to log activities");
             return;
@@ -243,6 +251,8 @@ const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
                 return null;
         }
     };
+
+    
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
