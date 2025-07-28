@@ -1,113 +1,72 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native'
-import { useState, useRef, useEffect } from 'react'
-import { deskSettings } from './DeskSettings';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useState, useEffect } from 'react';
+import axios from 'axios'; // Import axios for HTTP requests
 
+export default function DeskController() {
+  const [connected, setConnected] = useState(false); // State to track connection status
+  const ESP32_IP = "192.168.4.1"; 
 
-export default function deskController({ deskType }) {
-  const [height, setHeight] = useState(deskSettings[deskType].minHeight);
-  const [moving, setMoving] = useState(false);
+  const sendCommand = async (command) => {
+    try {
+      await axios.get(`http://${ESP32_IP}/${command}`, { timeout: 1000 }); // Send command to ESP32
+      console.log(`Command sent: ${command}`);
+    } catch (error) {
+      setConnected(false); // If there's an error, set connected to false
+    }
+  };
 
-  const { minHeight, maxHeight, maxSpeed, memoryHeights } = deskSettings[deskType];
-  const intervalRef = useRef(null);
-
+  // Connection check
   useEffect(() => {
-    setHeight(deskSettings[deskType].minHeight);
-  }, [deskType]);
-
-  const stopCurrentInterval = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null; // Clear the reference to the interval
-      setMoving(false);
-    }
-  };
-
-
-  const moveToMemoryHeight = (targetHeight) => {
-    stopCurrentInterval(); // Stop any ongoing movement when pressed
-
-    if (height === targetHeight || intervalRef.current) {
-      Alert.alert('Alert', `Desk is already at ${targetHeight} cm.`);
-      return; // Prevent multiple intervals or if already at target height
-    }
-
-    Alert.alert('Memory Height Pressed', `Setting height to ${targetHeight} cm... `); // Alert user about the movement
-    setMoving(true); // Set moving state to true
-
-    const step = height < targetHeight ? 1 : -1; // if  height is less than targetHeight, increase height, otherwise decrease it
-    const intervalTime = 1000 / (maxSpeed / 10); // Calculate interval time based on maxSpeed
-
-    intervalRef.current = setInterval(() => {
-      setHeight((prev) => {
-        const next = prev + step;
-        if ((step > 0 && next >= targetHeight) || (step < 0 && next <= targetHeight)) {
-          stopCurrentInterval();
-          return targetHeight; // Stop at target height
-        }
-        return next; // Continue moving towards target height
-      });
-    }, intervalTime);
-  }; // Move to a memory height 
-
-  const startHold = (direction) => {
-    stopCurrentInterval(); // Stop any ongoing movement from mem height when button is pressed
-    setMoving(true);
-
-    const step = direction === 'up' ? 1 : -1; // Determine interval based on direction
-    const intervalTime = 1000 / (maxSpeed / 10); // Calculate interval time based on maxSpeed
-
-    intervalRef.current = setInterval(() => {
-      setHeight(prev => {
-        const next = prev + step;
-        if ((step > 0 && next > maxHeight) || (step < 0 && next < minHeight)) {
-          stopCurrentInterval(); // Stop the interval if limits are reached
-          Alert.alert('Warning', `Height must be between ${minHeight}cm and ${maxHeight}cm`);
-          return prev; // Stop at the limits
-        }
-        return next; // Continue increasing or decreasing height
-      });
-    }, intervalTime);;
-  };
-
-  const stopHold = () => {
-    stopCurrentInterval(); // Stop the interval when button is released
-  };
+    const checkConnection = async () => {
+      try {
+        await axios.get(`http://${ESP32_IP}/release`, { timeout: 2000 }); 
+        setConnected(true); // If the request is successful, set connected to true
+      } catch (error) {
+        setConnected(false); // If there's an error, set connected to false
+      }
+    };
+    checkConnection();
+    const interval = setInterval(checkConnection, 3000); // Check connection every 3 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heightText}>Current Height</Text>
-      <Text style={styles.heightText}>{height} cm</Text>
+      <Text style={styles.title}>Main Controller</Text>
+      <Text style={styles.instruction}>Hold to adjust your desk height!</Text>
+      
+      <View style={[styles.connectionStatus, {backgroundColor: connected ? '#4CAF50' : '#F44336'}]}>
+        <Text style={styles.connectionText}>
+          {connected ? 'CONNECTED' : 'DISCONNECTED'}
+        </Text>
+      </View>
+      
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPressIn={() => startHold('down')}
-          onPressOut={stopHold}
-          style={styles.button}
+          onPressIn={() => sendCommand("press-down")}
+          onPressOut={() => sendCommand("release")}
+          style={[styles.button, !connected && styles.disabledButton]}
+          disabled={!connected}
         >
-          <Image source={require('../assets/down-button.png')} style={{ width: 60, height: 60 }} />
+          <Image 
+            source={require('../assets/down-button.png')} 
+            style={styles.buttonImage} 
+          />
+          <Text style={styles.buttonLabel}>Down</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPressIn={() => startHold('up')}
-          onPressOut={stopHold}
-          style={styles.button}
+          onPressIn={() => sendCommand("press-up")}
+          onPressOut={() => sendCommand("release")}
+          style={[styles.button, !connected && styles.disabledButton]}
+          disabled={!connected}
         >
-          <Image source={require('../assets/up-button.png')} style={{ width: 60, height: 60 }} />
+          <Image 
+            source={require('../assets/up-button.png')} 
+            style={styles.buttonImage} 
+          />
+          <Text style={styles.buttonLabel}>Up</Text>
         </TouchableOpacity>
-      </View>
-
-      <View style={styles.memoryContainer}>
-        <Text style={styles.memoryLabel}>Memory Heights:</Text>
-        <View style={styles.memoryButtons}>
-          {(memoryHeights).map((value, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => moveToMemoryHeight(value)}
-              style={styles.memoryButton}
-            >
-              <Text style={styles.buttonText}>{value} cm</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
       </View>
     </View>
   );
@@ -115,68 +74,68 @@ export default function deskController({ deskType }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f0f0f0',
-    padding: 30,
+    backgroundColor: '#f8f8f8',
   },
-  selectorContainer: {
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 4,
+  },
+  instruction: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 30,
+    textAlign: 'center',
+  },
+  connectionStatus: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 20,
     marginBottom: 30,
   },
-  selectorLabel: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  selector: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-  },
-  button: {
-    padding: 50,
-    borderRadius: 5,
-  },
-  selectedButton: {
-    padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  heightText: {
-    fontSize: 30,
-    marginVertical: 10,
+  connectionText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
+    paddingHorizontal: 40,
   },
-  memoryContainer: {
-    marginTop: 20,
+  button: {
     alignItems: 'center',
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    width: 120,
+    height: 120,
+    justifyContent: 'center',
   },
-  memoryLabel: {
-    fontSize: 18,
-    marginBottom: 10,
+  disabledButton: {
+    opacity: 0.4,
   },
-  memoryButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+  buttonImage: {
+    width: 50,
+    height: 50,
+    marginBottom: 8,
   },
-  memoryButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    backgroundColor: '#000',
-    borderRadius: 5,
-  },
-  memoryButtonText: {
-    color: '#000',
+  buttonLabel: {
     fontSize: 16,
-  },
-
-})
+    color: '#444',
+    fontWeight: '500',
+  }
+});

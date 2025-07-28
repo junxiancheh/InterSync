@@ -1,31 +1,152 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { useState, forwardRef, useImperativeHandle } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
+import { useEffect } from 'react';
+import { auth, db } from '../firebase'; // Import Firebase Authentication and Firestore
+import { collection, addDoc, query, where, orderBy, onSnapshot, Timestamp } from "firebase/firestore"
 
-export default function ActivityPage() {
+const ActivityLogger = forwardRef(({ onLogAdded }, ref) => {
     const [standingTime, setStandingTime] = useState(0);
     const [sittingTime, setSittingTime] = useState(0);
     const [activityLog, setActivityLog] = useState([]);
     const [showHistory, setShowHistory] = useState(false);
     const [filter, setFilter] = useState('day');
+    const [loading, setLoading] = useState(false);
+    const [dailyStanding, setDailyStanding] = useState(0);
 
-    const addToLog = () => {
-        if (standingTime === 0 && sittingTime === 0) return;
-        const newLog = {
-            date: new Date().toLocaleString(),
-            timestamp: new Date().getTime(),
-            standingTime,
-            sittingTime,
-        };
-        setActivityLog([newLog, ...activityLog]); // add to top
-        setStandingTime(0);
-        setSittingTime(0);
+
+    // Fetch activity logs from Firestore
+    useEffect(() => {
+        if (!auth.currentUser) return; // Ensure user is authenticated
+
+        setLoading(true);
+        const activitiesRef = collection(db, "activities"); // Firebase activities
+        const userQuery = query( // Fetch logs for the current user
+            activitiesRef, 
+            where("userId", "==", auth.currentUser.uid),
+            orderBy("timestamp", "desc")
+        );
+
+        const unsubscribe = onSnapshot(userQuery, (snapshot) => {
+            const logs = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                logs.push({
+                    id: doc.id, // Use Firestore document ID as log ID
+                    date: data.timestamp.toDate().toLocaleString(), // Format date for display
+                    timestamp: data.timestamp.toMillis(), // Store timestamp in milliseconds
+                    standingTime: data.standingTime, // Store standing time
+                    sittingTime: data.sittingTime // Store sitting time
+                });
+            });
+            setActivityLog(logs);
+            setLoading(false);
+        }, (error) => {
+            console.error("Firestore error:", error);
+            setLoading(false);
+            Alert.alert("Error", "Failed to load activity data");
+        });
+
+        return unsubscribe;
+    }, []);
+
+    useEffect(() => {
+        const newDailyStanding = calculateDailyStanding(activityLog);
+        setDailyStanding(newDailyStanding);
+
+        if (onLogAdded) onLogAdded(newDailyStanding); // notiify goal tracker of new standing time
+    }, [activityLog]);
+
+    const calculateDailyStanding = (logs) => { // Calculate total standing time for today
+        const today = new Date(); // Get today's date
+        today.setHours(0, 0, 0, 0); // Set to start of today
+        return logs
+            .filter(log => new Date(log.timestamp) >= today)
+            .reduce((sum, log) => sum + log.standingTime, 0); // Sum standing times for today
     };
-    // Helper function for filtering logs
+
+    useImperativeHandle(ref, () => ({
+        getActivityData: () => { // Return data for charts and loggings
+            return {
+                daily: processDataForChart('day'),
+                weekly: processDataForChart('week'),
+                monthly: processDataForChart('month'),
+                rawLogs: [...activityLog]
+            };
+        },
+        getDailyStandingTime: () => calculateDailyStanding(activityLog),
+        getTimeData: (period) => { // Get total standing and sitting times for the specified period
+            const logs = filterLogs(period);
+            return {
+                standing: logs.reduce((sum, log) => sum + log.standingTime, 0), // Total standing time
+                sitting: logs.reduce((sum, log) => sum + log.sittingTime, 0) // Total sitting time
+            };
+        }
+    }));
+
+    // Process data for charts
+    const processDataForChart = (period) => {
+        const logs = filterLogs(period);
+        const count = Math.min(logs.length, 7); // Limit to 7 entries for day/week, or 4 for month
+
+        return {
+            labels: Array.from({ length: count }, (_, i) => {
+                if (period === 'day') return `${i + 8}:00`; // time labels for day
+                if (period === 'week') return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]; // Return day names for week
+                return `Week ${i + 1}`;
+            }),
+            standing: logs.slice(0, count).map(log => log.standingTime),
+            sitting: logs.slice(0, count).map(log => log.sittingTime)
+        };
+    };
+
+    const addToLog = async () => { // Add new log entry
+        if (standingTime === 0 && sittingTime === 0) return; // refuse empty logs
+        if (!auth.currentUser) { // Ensure user is logged in
+            Alert.alert("Error", "You must be logged in to log activities");
+            return;
+        }
+
+        try {
+            const tempId = `temp-${Date.now()}`; // Temporary ID for optimistic UI update
+            const newLog = {
+                id: tempId, // Use temporary ID for immediate UI update
+                timestamp: Timestamp.now(), // Use Firestore timestamp
+                standingTime: Number(standingTime), // Ensure standing time is a number
+                sittingTime: Number(sittingTime), // Ensure sitting time is a number
+            };
+            setActivityLog(prevLogs => [newLog, ...prevLogs]);
+
+            const docRef = await addDoc(collection(db, "activities"), {
+                userId: auth.currentUser.uid, // Store user ID for filtering
+                timestamp: Timestamp.now(), // Use Firestore timestamp
+                standingTime: Number(standingTime), // Ensure standing time is a number
+                sittingTime: Number(sittingTime), // Ensure sitting time is a number
+            });
+            
+            // Replace temporary log with permanent one from Firestore
+            setActivityLog(prevLogs => prevLogs.map(log => 
+                log.id === tempId ? { 
+                    ...log,
+                    id: docRef.id
+                } : log
+            ));
+            
+            // Reset fields 
+            setStandingTime(0);
+            setSittingTime(0);
+
+        } catch (error) {
+            console.error("Error adding activity:", error);
+            Alert.alert("Error", "Failed to save activity");
+            setActivityLog(prevLogs => prevLogs.filter(log => !log.id.startsWith('temp-')));
+        }
+    };
+
     const filterLogs = (period) => {
         const now = new Date();
         const currentTime = now.getTime();
 
-        switch (period) {
+        switch (period) { // Filter logs based on the selected period
             case 'day':
                 const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
                 return activityLog.filter(log => log.timestamp >= startOfDay);
@@ -40,8 +161,7 @@ export default function ActivityPage() {
         }
     };
 
-    // Calculating summary statistics
-    const calculateSummary = (logs) => {
+    const calculateSummary = (logs) => { // Calculate total and average standing/sitting times
         const totalStanding = logs.reduce((sum, log) => sum + log.standingTime, 0);
         const totalSitting = logs.reduce((sum, log) => sum + log.sittingTime, 0);
 
@@ -56,12 +176,40 @@ export default function ActivityPage() {
     const filteredLogs = filterLogs(filter);
     const summary = calculateSummary(filteredLogs);
 
-    const renderSummary = () => {
+    const renderSummary = () => { // Render summary based on the selected filter
+        // Format date for display
+        const formatDate = (date) => {
+            return date.toLocaleDateString('en-US');
+        };
+        // Get the current date 
+        const now = new Date();
+
+        // Determine the date range based on the filter
+        switch (filter) {
+            case 'day':
+                dateRange = formatDate(now);
+                break;
+            case 'week':
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay());
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() - 6);
+                dateRange = `${formatDate(endOfWeek)} - ${formatDate(startOfWeek)}`;
+                break;
+            case 'month':
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                dateRange = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+                break;
+        }
+
         switch (filter) {
             case 'day':
                 return (
                     <View style={styles.summaryContainer}>
-                        <Text style={styles.summaryTitle}>Daily Summary</Text>
+                        <Text style={styles.summaryTitle}>Daily Summary - {dateRange}</Text>
                         <View style={styles.divider} />
                         <Text>Total Standing: {summary.totalStanding} min</Text>
                         <Text>Total Sitting: {summary.totalSitting} min</Text>
@@ -70,7 +218,7 @@ export default function ActivityPage() {
             case 'week':
                 return (
                     <View style={styles.summaryContainer}>
-                        <Text style={styles.summaryTitle}>Weekly Summary</Text>
+                        <Text style={styles.summaryTitle}>Weekly Summary ({dateRange})</Text>
                         <View style={styles.divider} />
                         <Text>Total Standing: {summary.totalStanding} min</Text>
                         <Text>Total Sitting: {summary.totalSitting} min</Text>
@@ -82,7 +230,7 @@ export default function ActivityPage() {
             case 'month':
                 return (
                     <View style={styles.summaryContainer}>
-                        <Text style={styles.summaryTitle}>Monthly Summary</Text>
+                        <Text style={styles.summaryTitle}>Monthly Summary - {dateRange}</Text>
                         <View style={styles.divider} />
                         <Text>Total Standing: {summary.totalStanding} min</Text>
                         <Text>Total Sitting: {summary.totalSitting} min</Text>
@@ -101,7 +249,8 @@ export default function ActivityPage() {
             <View style={styles.divider} />
             <Text style={styles.title}>Activity Logger</Text>
             <Text style={styles.description}>Track your sitting and standing times using this logger!</Text>
-            <Text> Enter sitting time in minutes </Text>
+
+            <Text>Enter sitting time in minutes</Text>
             <TextInput
                 keyboardType="numeric"
                 value={sittingTime.toString()}
@@ -109,7 +258,8 @@ export default function ActivityPage() {
                 placeholder="Enter sitting time in minutes"
                 style={styles.input}
             />
-            <Text> Enter standing time in minutes </Text>
+
+            <Text>Enter standing time in minutes</Text>
             <TextInput
                 keyboardType="numeric"
                 value={standingTime.toString()}
@@ -121,9 +271,11 @@ export default function ActivityPage() {
             <TouchableOpacity onPress={addToLog} style={styles.button}>
                 <Text style={styles.buttonText}>Add to Log</Text>
             </TouchableOpacity>
+
             <View style={styles.divider} />
             <Text style={styles.title}>Summary</Text>
             <Text style={styles.description}>The summary page contains your sit-stand habits. Tap below to filter by day, week or month!</Text>
+
             <View style={styles.filterContainer}>
                 <TouchableOpacity
                     onPress={() => setFilter('day')}
@@ -144,9 +296,16 @@ export default function ActivityPage() {
                     <Text>Month</Text>
                 </TouchableOpacity>
             </View>
+
             {renderSummary()}
-            <TouchableOpacity onPress={() => setShowHistory(!showHistory)} style={styles.historyButton}>
-                <Text style={styles.historyButtonText}>{showHistory ? 'Hide History' : 'Show History'}</Text>
+
+            <TouchableOpacity
+                onPress={() => setShowHistory(!showHistory)}
+                style={styles.historyButton}
+            >
+                <Text style={styles.historyButtonText}>
+                    {showHistory ? 'Hide History' : 'Show History'}
+                </Text>
                 {showHistory && (
                     <View style={{ width: '100%' }}>
                         <Text style={styles.subTitle}>Activity Log History</Text>
@@ -162,7 +321,7 @@ export default function ActivityPage() {
             </TouchableOpacity>
         </ScrollView>
     );
-}
+});
 
 const styles = StyleSheet.create({
     scrollContainer: {
@@ -201,7 +360,6 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
         textAlign: 'center',
-    
     },
     description: {
         fontSize: 12,
@@ -265,6 +423,6 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     }
-
 });
 
+export default ActivityLogger;
