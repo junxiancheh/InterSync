@@ -32,13 +32,22 @@ As an office manager, I want to manage multiple desks in a shared workspace, so 
 
 
 ## Features
-Feature 1 (core): Adjusting desk’s height
+Feature 1 (core): Navigation Bar
 
-Feature 2 (core): Notification to alert users to stand 
+Feature 2 (core): Adjusting desk’s height
 
-Feature 3 (core): Activity tracking
+Feature 3 (core): Stand Notification
 
-Feature 4 (extension): Goals tracker
+Feature 4 (core): Activity Logger
+
+Feature 5 (core): Goals Tracker
+
+Feature 6 (core): Database Management System
+
+Feature 7 (core): Connection between Application and ESP32
+
+Feature 8 (core): User Authentication system (Log In/Log Out/Sign Up)
+
 
 
 ## Timeline
@@ -91,11 +100,4 @@ Servomotor
 
 Bluetooth/WiFi
 
-## Proposed Technical Proof of Concept
-**Objective**:
-The objective of this Proof of Concept is to demonstrate the feasibility of controlling a desk’s height remotely via a mobile app communicating wirelessly with an Arduino microcontroller that physically presses the desk buttons.
-
-
-**Design and Architecture**:
-The mobile app connects to the Arduino over BLE. When the user presses the "Raise" or "Lower" button, the app sends a command wirelessly. The Arduino activates servo motors to press the corresponding physical desk buttons, adjusting the desk height.
 
